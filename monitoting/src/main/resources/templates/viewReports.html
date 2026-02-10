@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>View Reports</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Infrastructure Reports</h2>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-success">
+        <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Value</th>
+            <th>Unit</th>
+            <th>Date</th>
+            <th>Notes</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="r : ${reports}">
+            <td th:text="${r.id}"></td>
+            <td th:text="${r.dataType}"></td>
+            <td th:text="${r.location}"></td>
+            <td th:text="${r.value}"></td>
+            <td th:text="${r.unit}"></td>
+            <td th:text="${r.date}"></td>
+            <td th:text="${r.notes}"></td>
+        </tr>
+        </tbody>
+
+    </table>
+
+    <div class="text-center">
+        <a href="/" class="btn btn-success">Back to Dashboard</a>
+    </div>
+</div>
+
+</body>
+</html>
