@@ -6,22 +6,27 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Setter
-@Getter
 @Entity
+@Table(name = "reports")
+@Getter
+@Setter
 public class Report {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String dataType;
-    private String location;
-    private int value;
-    private String unit;
-    private LocalDate date;
+    @ManyToOne
+    @JoinColumn(name = "location_id")
+    private Location location;
+
+    @Column(name = "report_date")
+    private LocalDate reportDate;
+
     private String notes;
 
-    // Getters & Setters
+    @ManyToOne
+    @JoinColumn(name = "report_type_id", nullable = false)
+    private ReportType reportType;
 
 }

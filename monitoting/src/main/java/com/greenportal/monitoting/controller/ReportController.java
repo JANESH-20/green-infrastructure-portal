@@ -1,10 +1,11 @@
 package com.greenportal.monitoting.controller;
 
-import com.greenportal.monitoting.entity.Report;
 import com.greenportal.monitoting.service.ReportService;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.LocalDate;
 
 @Controller
 public class ReportController {
@@ -16,14 +17,25 @@ public class ReportController {
     }
 
     @PostMapping("/saveReport")
-    public String saveReport(@ModelAttribute Report report) {
-        service.saveReport(report);
-        return "redirect:/";
-    }
+    public String saveReport(@RequestParam String dataType,
+                             @RequestParam String location,
+                             @RequestParam double value,
+                             @RequestParam String unit,
+                             @RequestParam String date,
+                             @RequestParam String notes,
+                             RedirectAttributes ra) {
 
-    @GetMapping("/viewReports")
-    public String viewReports(Model model) {
-        model.addAttribute("reports", service.getAllReports());
-        return "viewReports";
+        service.saveReport(
+                dataType,
+                location,
+                value,
+                unit,
+                LocalDate.parse(date),
+                notes
+        );
+
+        ra.addFlashAttribute("success", "Data saved successfully!");
+
+        return "redirect:/add-data";
     }
 }
