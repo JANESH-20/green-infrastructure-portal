@@ -36,6 +36,8 @@ public class ReportController {
 
         ra.addFlashAttribute("success", "Data saved successfully!");
 
+
+
         return "redirect:/add-data";
     }
 }
