@@ -131,10 +131,4 @@ mvn spring-boot:run
 4️⃣ Access Application
 http://localhost:8080
 
-🧪 Sample Report Types
-Name
-Water Usage
-Electricity Consumption
-Trees Planted
-Waste Collected
 
