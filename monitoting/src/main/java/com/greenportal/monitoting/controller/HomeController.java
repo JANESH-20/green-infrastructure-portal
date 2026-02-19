@@ -1,50 +1,46 @@
 package com.greenportal.monitoting.controller;
 
-import com.greenportal.monitoting.entity.Report;
-import com.greenportal.monitoting.repository.ReportRepository;
 import com.greenportal.monitoting.service.DashboardService;
+import com.greenportal.monitoting.service.DashboardService.RecentRow;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.time.LocalDate;
+
 @Controller
 public class HomeController {
 
-    private final ReportRepository reportRepository;
     private final DashboardService dashboardService;
 
-    public HomeController(ReportRepository reportRepository,
-                          DashboardService dashboardService) {
-        this.reportRepository = reportRepository;
+    public HomeController(DashboardService dashboardService) {
         this.dashboardService = dashboardService;
     }
 
-    // Dashboard
     @GetMapping("/")
     public String dashboard(Model model) {
 
-        model.addAttribute("totalTrees", dashboardService.totalTrees());
-        model.addAttribute("waterUsedToday",
-                dashboardService.waterUsedToday() + " L");
-        model.addAttribute("electricityConsumption",
-                dashboardService.electricityToday() + " kWh");
-        model.addAttribute("wasteCollected",
-                dashboardService.wasteToday() + " kg");
+        LocalDate start = dashboardService.weekStart(LocalDate.now());
+        LocalDate end = start.plusDays(6);
+
+        model.addAttribute("weekStart", start);
+        model.addAttribute("weekEnd", end);
+
+        model.addAttribute("waterWeek", dashboardService.weekTotalByType("Water Usage", start, end));
+        model.addAttribute("electricityWeek", dashboardService.weekTotalByType("Electricity Consumption", start, end));
+        model.addAttribute("wasteWeek", dashboardService.weekTotalByType("Waste Collected", start, end));
+        model.addAttribute("totalTrees", dashboardService.totalTreesAllTime());
+
+        // Chart arrays
+        model.addAttribute("locationLabels", dashboardService.locationLabels());
+        model.addAttribute("waterByLocation", dashboardService.weekTotalsByLocation("Water Usage", start, end));
+        model.addAttribute("electricityByLocation", dashboardService.weekTotalsByLocation("Electricity Consumption", start, end));
+        model.addAttribute("wasteByLocation", dashboardService.weekTotalsByLocation("Waste Collected", start, end));
+        model.addAttribute("treesByLocation", dashboardService.weekTotalsByLocation("Trees Planted", start, end));
+
+        // Recent rows (last 8)
+        model.addAttribute("recentRows", dashboardService.recentRows(8));
 
         return "dashboard_admin";
-    }
-
-    // Show Add Report form
-    @GetMapping("/add-data")
-    public String addData(Model model) {
-        model.addAttribute("report", new Report());
-        return "add_data";
-    }
-
-    // Show all reports
-    @GetMapping("/view-reports")
-    public String viewReports(Model model) {
-        model.addAttribute("reports", reportRepository.findAll());
-        return "viewReports";
     }
 }

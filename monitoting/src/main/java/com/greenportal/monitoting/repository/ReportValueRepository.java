@@ -9,13 +9,16 @@ import java.time.LocalDate;
 
 public interface ReportValueRepository extends JpaRepository<ReportValue, Long> {
 
-    // TODAY total by type (water, electricity, waste, Tree)
     @Query("""
-        SELECT COALESCE(SUM(rv.value), 0)
-        FROM ReportValue rv
-        WHERE rv.reportType.name = :type
-          AND rv.report.reportDate = :date
-    """)
-    double getTodayTotalByType(@Param("type") String type,
-                               @Param("date") LocalDate date);
+    select coalesce(sum(rv.value), 0)
+    from ReportValue rv
+    join rv.report r
+    join rv.reportType rt
+    where rt.name = :typeName
+      and r.reportDate between :startDate and :endDate
+""")
+    Double sumByTypeBetweenDates(@Param("typeName") String typeName,
+                                 @Param("startDate") LocalDate startDate,
+                                 @Param("endDate") LocalDate endDate);
+
 }

@@ -10,60 +10,42 @@ import java.time.LocalDate;
 @Service
 public class ReportService {
 
-    private final LocationRepository locationRepo;
-    private final ReportTypeRepository typeRepo;
-    private final ReportRepository reportRepo;
-    private final ReportValueRepository valueRepo;
+    private final ReportRepository reportRepository;
+    private final LocationRepository locationRepository;
+    private final ReportTypeRepository reportTypeRepository;
 
-    public ReportService(LocationRepository locationRepo,
-                         ReportTypeRepository typeRepo,
-                         ReportRepository reportRepo,
-                         ReportValueRepository valueRepo) {
-        this.locationRepo = locationRepo;
-        this.typeRepo = typeRepo;
-        this.reportRepo = reportRepo;
-        this.valueRepo = valueRepo;
+    public ReportService(ReportRepository reportRepository,
+                         LocationRepository locationRepository,
+                         ReportTypeRepository reportTypeRepository) {
+        this.reportRepository = reportRepository;
+        this.locationRepository = locationRepository;
+        this.reportTypeRepository = reportTypeRepository;
     }
 
     @Transactional
-    public void saveReport(String dataType,
-                           String locationName,
-                           double value,
-                           String unit,
-                           LocalDate date,
-                           String notes) {
+    public void saveReport(String dataType, String locationName, LocalDate date,
+                           Double value, String unit) {
 
-        // 1️⃣ Get or create Location
-        Location location = locationRepo.findByName(locationName)
-                .orElseGet(() -> {
-                    Location l = new Location();
-                    l.setName(locationName);
-                    return locationRepo.save(l);
-                });
+        Location location = locationRepository.findByName(locationName)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid location: " + locationName));
 
-        // 2️⃣ Get or create ReportType
-        ReportType type = typeRepo.findByName(dataType)
-                .orElseGet(() -> {
-                    ReportType t = new ReportType();
-                    t.setName(dataType);
-                    return typeRepo.save(t);
-                });
+        ReportType reportType = reportTypeRepository.findByName(dataType)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid type: " + dataType));
 
-        // 3️⃣ Save Report
         Report report = new Report();
         report.setLocation(location);
+        report.setReportType(reportType);
         report.setReportDate(date);
-        report.setNotes(notes);
-        report.setReportType(type);
-        report = reportRepo.save(report);
+        report.setNotes(null); // not using notes now
 
-        // 4️⃣ Save ReportValue
         ReportValue rv = new ReportValue();
         rv.setReport(report);
-        rv.setReportType(type);
+        rv.setReportType(reportType);
         rv.setValue(value);
         rv.setUnit(unit);
 
-        valueRepo.save(rv);
+        report.getReportValues().add(rv);
+
+        reportRepository.save(report);
     }
 }

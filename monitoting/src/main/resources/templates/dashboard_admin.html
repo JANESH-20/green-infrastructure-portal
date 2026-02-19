@@ -1,114 +1,182 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <title>Dashboard - Green Infrastructure Portal</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(
+        ~{::main},
+        'Dashboard - Green Portal',
+        'dashboard',
+        'Dashboard',
+        'Weekly overview'
+      )}">
+
+<main class="page-shell">
+
     <style>
-        .card-hover {
-            transition: transform 0.3s, box-shadow 0.3s;
+        .kpi{
+            padding: 16px 16px;
+            min-height: 110px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:14px;
+        }
+        .kpi .label{ font-size:.86rem; color:#6b7280; margin-bottom:6px; }
+        .kpi .value{ font-size:1.35rem; font-weight:800; line-height:1; letter-spacing:.2px; }
+        .kpi .unit{ font-size:.86rem; color:#6b7280; font-weight:700; margin-left:6px; }
+        .kpi .icon{
+            width: 46px; height: 46px;
+            display:flex; align-items:center; justify-content:center;
+            border-radius: 16px;
+            background: rgba(25,135,84,.12);
+            color:#146c43;
+            font-size: 1.3rem;
+            flex-shrink:0;
         }
 
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        .section-head{
+            display:flex;
+            align-items:flex-end;
+            justify-content:space-between;
+            gap:12px;
+            margin-bottom: 10px;
+        }
+        .section-title{
+            font-weight: 800;
+            font-size: 1.05rem;
+            margin:0;
+        }
+        .section-sub{
+            color:#6b7280;
+            font-size:.88rem;
+            margin-top:4px;
         }
 
-        .stat-title {
-            font-size: 15px;
-            min-height: 40px;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            min-height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .custom-border {
-            border: 1px solid #218838 !important;
-        }
-
+        .chart-card{ padding: 16px; }
+        .chart-wrap{ height: 380px; margin-top: 10px; }
     </style>
-</head>
-<nav class="navbar navbar-dark bg-success px-3">
-    <span class="navbar-brand mb-0 h1">🌿 Green Infrastructure Monitoring Portal</span>
-    <div class=".flex justify-content-end text-white">
-        <a href="/login" class="btn btn-outline-light">Login</a>
-    </div>
-</nav>
 
-<div class="container mt-5">
-    <div class="text-center mb-5">
-        <h2 class="fw-bold">Dashboard</h2>
-        <p class="text-muted">Monitor and manage campus environmental data</p>
-    </div>
-    <div class="container my-4">
-        <div class="row g-3">
-            <div class="container my-4">
-                <div class="row g-3">
-                    <div class="col-md-3 col-sm-6">
-                        <div class="card text-center shadow-sm custom-border card-hover">
-                            <div class="card-body">
-                                <p class="card-text text-muted mb-2 stat-title">Total Trees Planted</p>
-                                <h3 class="card-title stat-value" th:text="${totalTrees}"></h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-sm-6">
-                        <div class="card text-center shadow-sm custom-border card-hover">
-                            <div class="card-body">
-                                <p class="card-text text-muted mb-2 stat-title">Water Used Today</p>
-                                <h3 th:text="${waterUsedToday}" class="stat-value"></h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-sm-6">
-                        <div class="card text-center shadow-sm custom-border card-hover">
-                            <div class="card-body">
-                                <p class="card-text text-muted mb-2 stat-title">Electricity Consumption</p>
-                                <h3 th:text="${electricityConsumption}" class="stat-value"></h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-sm-6">
-                        <div class="card text-center shadow-sm custom-border card-hover">
-                            <div class="card-body">
-                                <p class="card-text text-muted mb-2 stat-title">Waste Collected</p>
-                                <h3 th:text="${wasteCollected}" class="stat-value"></h3>
-                            </div>
-                        </div>
+    <!-- KPI row -->
+    <div class="row g-3 mb-3">
+        <div class="col-xl-3 col-md-6">
+            <div class="gp-card kpi">
+                <div>
+                    <div class="label">Water (This Week)</div>
+                    <div class="value">
+                        <span th:text="${waterWeek ?: 0}">0</span><span class="unit">L</span>
                     </div>
                 </div>
-            </div>
-            <div class="row g-5 justify-content-center my-5">
-                <div sec:authorize="hasRole('ADMIN')" class="col-md-4">
-                    <div class="card shadow-sm border-1 custom-border card-hover">
-                        <div class="card-body text-center">
-                            <h4 class="card-title">Add Infrastructure Data</h4>
-                            <p class="card-text">Enter new data.</p>
-                            <a href="/add-data" class="btn btn-success">Add Data</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-1 custom-border card-hover">
-                        <div class="card-body text-center">
-                            <h4 class="card-title">View Reports</h4>
-                            <p class="card-text">See all saved records.</p>
-                            <a href="/view-reports" class="btn btn-success">View Reports</a>
-                        </div>
-                    </div>
-                </div>
+                <div class="icon"><i class="bi bi-droplet"></i></div>
             </div>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    </div>
-</div>
-</html>
 
+        <div class="col-xl-3 col-md-6">
+            <div class="gp-card kpi">
+                <div>
+                    <div class="label">Electricity (This Week)</div>
+                    <div class="value">
+                        <span th:text="${electricityWeek ?: 0}">0</span><span class="unit">kWh</span>
+                    </div>
+                </div>
+                <div class="icon"><i class="bi bi-lightning-charge"></i></div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="gp-card kpi">
+                <div>
+                    <div class="label">Waste (This Week)</div>
+                    <div class="value">
+                        <span th:text="${wasteWeek ?: 0}">0</span><span class="unit">kg</span>
+                    </div>
+                </div>
+                <div class="icon"><i class="bi bi-recycle"></i></div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="gp-card kpi">
+                <div>
+                    <div class="label">Trees (All Time)</div>
+                    <div class="value">
+                        <span th:text="${totalTrees ?: 0}">0</span><span class="unit">trees</span>
+                    </div>
+                </div>
+                <div class="icon"><i class="bi bi-tree"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Big chart card -->
+    <div class="gp-card chart-card">
+        <div class="section-head">
+            <div>
+                <p class="section-title">This Week: Totals by Location</p>
+                <div class="section-sub">
+                    Week: <span th:text="${weekStart}">-</span> → <span th:text="${weekEnd}">-</span>
+                </div>
+            </div>
+
+            <!-- optional metric switch (keeps UI clean but useful) -->
+            <select id="metricSelect" class="form-select form-select-sm" style="max-width: 210px;">
+                <option value="water" selected>Water (L)</option>
+                <option value="electricity">Electricity (kWh)</option>
+                <option value="waste">Waste (kg)</option>
+                <option value="trees">Trees (count)</option>
+            </select>
+        </div>
+
+        <div class="chart-wrap">
+            <canvas id="locChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Inject arrays from Spring -->
+    <script th:inline="javascript">
+        const labels = /*[[${locationLabels}]]*/ [];
+        const water = /*[[${waterByLocation}]]*/ [];
+        const electricity = /*[[${electricityByLocation}]]*/ [];
+        const waste = /*[[${wasteByLocation}]]*/ [];
+        const trees = /*[[${treesByLocation}]]*/ [];
+    </script>
+
+    <script>
+        const ctx = document.getElementById('locChart');
+
+        const datasetsMap = {
+            water: { label: 'Water (L)', data: water },
+            electricity: { label: 'Electricity (kWh)', data: electricity },
+            waste: { label: 'Waste (kg)', data: waste },
+            trees: { label: 'Trees (count)', data: trees }
+        };
+
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: datasetsMap.water.label,
+                    data: datasetsMap.water.data,
+                    borderWidth: 1,
+                    borderRadius: 12
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: true } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        document.getElementById('metricSelect').addEventListener('change', (e) => {
+            const key = e.target.value;
+            chart.data.datasets[0].label = datasetsMap[key].label;
+            chart.data.datasets[0].data = datasetsMap[key].data;
+            chart.update();
+        });
+    </script>
+
+</main>
+</html>
