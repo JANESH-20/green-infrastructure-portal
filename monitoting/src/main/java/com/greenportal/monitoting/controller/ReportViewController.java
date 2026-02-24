@@ -31,17 +31,34 @@ public class ReportViewController {
 
     // ===================== VIEW REPORTS (WEEKLY) =====================
     @GetMapping("/view-reports")
-    public String viewReports(Model model) {
+    public String viewReports(@RequestParam(value = "week", required = false) String week,
+                              Model model) {
 
-        LocalDate today = LocalDate.now();
-        LocalDate weekStart = today.with(DayOfWeek.MONDAY);
+        LocalDate weekStart;
+
+        if (week == null || week.isBlank()) {
+            LocalDate today = LocalDate.now();
+            weekStart = today.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        } else {
+            int year = Integer.parseInt(week.substring(0, 4));
+            int weekNumber = Integer.parseInt(week.substring(6));
+
+            weekStart = LocalDate.of(year, 1, 4) // ISO week anchor
+                    .with(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear(), weekNumber)
+                    .with(java.time.temporal.WeekFields.ISO.dayOfWeek(), 1); // Monday
+        }
+
         LocalDate weekEnd = weekStart.plusDays(6);
 
         model.addAttribute("weekStart", weekStart);
         model.addAttribute("weekEnd", weekEnd);
+        model.addAttribute("selectedWeek",
+                weekStart.format(java.time.format.DateTimeFormatter.ofPattern("YYYY-'W'ww")));
 
-        // IMPORTANT: use a fetch query so thymeleaf can read reportValues without Lazy errors
         model.addAttribute("reports", reportRepository.findWeeklyWithValues(weekStart, weekEnd));
+
+        // ✅ for dynamic dropdown + blocks
+        model.addAttribute("locations", locationRepository.findAll());
 
         return "viewReports";
     }

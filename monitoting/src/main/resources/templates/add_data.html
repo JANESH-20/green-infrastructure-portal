@@ -41,7 +41,7 @@
             align-items:center;
             gap:.5rem;
         }
-        .chip i{ color:#198754; }
+        .chip i{ color: #0f5132 }
         .chip:hover{ transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.06); }
         .chip.active{
             background: rgba(25,135,84,.12);
@@ -81,19 +81,11 @@
         }
         .btn-round{ border-radius: 14px; padding: 10px 16px; min-width: 160px; font-weight: 700; }
 
-        .date-note{
-            display:flex;
-            align-items:center;
-            gap:8px;
-            color:#6b7280;
-            font-size:.9rem;
-            margin-top:6px;
-        }
     </style>
 
     <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
         <div>
-        <h1 class="fw-bold mb-1 pt-2">Add Infrastructure Data</h1>
+        <h1 class="fw-bold mb-1 pt-2">Add Monitoring Data</h1>
         <div class="text-muted">Quick admin entry with smart defaults</div>
         </div>
     </div>
@@ -114,7 +106,7 @@
             <span class="chip" data-type="Trees Planted"><i class="bi bi-tree-fill"></i> Trees</span>
         </div>
 
-        <form action="/saveReport" method="post" id="addForm" novalidate>
+        <form th:action="@{/saveReport}" method="post">
             <div class="row g-3 align-items-end">
 
                 <div class="col-lg-4 col-md-6">
@@ -167,16 +159,12 @@
             </div>
 
             <div class="actions">
-                <button type="submit" class="btn btn-success btn-round">
+                <button type="submit" class="btn btn-success btn-round" style="background-color: #0f5132" id="savebtn">
                     <i class="bi bi-save me-1"></i> Save
                 </button>
 
-                <button type="button" class="btn btn-outline-success btn-round" id="saveAndNewBtn">
-                    <i class="bi bi-plus-circle me-1"></i> Save & New
-                </button>
-
-                <button type="reset" class="btn btn-outline-secondary btn-round" id="resetBtn">
-                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                <button type="button" class="btn btn-outline-success btn-round" id="saveAndNewBtn" style="border-color: #0f5132">
+                    <i class="bi bi-plus-circle me-1" style="border-color: #0f5132; color: #0f5132;"></i> Save & New
                 </button>
 
                 <input type="hidden" name="saveAndNew" id="saveAndNew" value="false" />
@@ -196,7 +184,6 @@
         const valueLabelEl = document.getElementById('valueLabel');
         const valueHintEl = document.getElementById('valueHint');
         const dateEl = document.getElementById('date');
-        const resetBtn = document.getElementById('resetBtn');
 
         const chips = Array.from(document.querySelectorAll('.chip[data-type]'));
 
@@ -287,13 +274,6 @@
         document.getElementById('saveAndNewBtn').addEventListener('click', () => {
             saveAndNewEl.value = "true";
             form.requestSubmit();
-        });
-
-        resetBtn.addEventListener('click', () => {
-            setTimeout(() => {
-                setTodayIfEmpty();
-                applyTypeConfig();
-            }, 0);
         });
 
         form.addEventListener('submit', (e) => {

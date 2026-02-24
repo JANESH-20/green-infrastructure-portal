@@ -61,7 +61,8 @@
                 <div>
                     <div class="label">Water (This Week)</div>
                     <div class="value">
-                        <span th:text="${waterWeek ?: 0}">0</span><span class="unit">L</span>
+                        <span th:text="${waterWeek == null ? '0.00' : #numbers.formatDecimal(waterWeek, 1, 2)}">0.00</span>
+                        <span class="unit">L</span>
                     </div>
                 </div>
                 <div class="icon"><i class="bi bi-droplet"></i></div>
@@ -73,7 +74,8 @@
                 <div>
                     <div class="label">Electricity (This Week)</div>
                     <div class="value">
-                        <span th:text="${electricityWeek ?: 0}">0</span><span class="unit">kWh</span>
+                        <span th:text="${electricityWeek == null ? '0.00' : #numbers.formatDecimal(electricityWeek, 1, 2)}">0.00</span>
+                        <span class="unit">kWh</span>
                     </div>
                 </div>
                 <div class="icon"><i class="bi bi-lightning-charge"></i></div>
@@ -85,7 +87,8 @@
                 <div>
                     <div class="label">Waste (This Week)</div>
                     <div class="value">
-                        <span th:text="${wasteWeek ?: 0}">0</span><span class="unit">kg</span>
+                        <span th:text="${wasteWeek == null ? '0.00' : #numbers.formatDecimal(wasteWeek, 1, 2)}">0.00</span>
+                        <span class="unit">Kg</span>
                     </div>
                 </div>
                 <div class="icon"><i class="bi bi-recycle"></i></div>
@@ -97,7 +100,8 @@
                 <div>
                     <div class="label">Trees (All Time)</div>
                     <div class="value">
-                        <span th:text="${totalTrees ?: 0}">0</span><span class="unit">trees</span>
+                        <span th:text="${totalTrees == null ? 0 : T(java.lang.Math).round(totalTrees)}">0</span>
+                        <span class="unit">trees</span>
                     </div>
                 </div>
                 <div class="icon"><i class="bi bi-tree"></i></div>

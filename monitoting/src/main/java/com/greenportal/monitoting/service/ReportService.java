@@ -36,7 +36,6 @@ public class ReportService {
         report.setLocation(location);
         report.setReportType(reportType);
         report.setReportDate(date);
-        report.setNotes(null); // not using notes now
 
         ReportValue rv = new ReportValue();
         rv.setReport(report);

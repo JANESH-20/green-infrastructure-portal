@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
+<html lang="en"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org"
       th:replace="~{fragments/layout :: layout(
         ~{::main},
         'Weekly Reports - Green Portal',
@@ -11,135 +13,260 @@
 <main class="page-shell">
 
     <style>
-
-        /* ✅ REMOVE max-width shrink – page-shell already controls alignment */
-        .page-wrap{
-            width: 100%;
+        :root{
+            --green:#0f5132;
+            --soft:#ecf7f0;
+            --border: rgba(15,81,50,.14);
+            --shadow: 0 14px 40px rgba(0,0,0,.08);
         }
 
-        .card-soft{
-            border: 1px solid rgba(25,135,84,.18);
-            border-radius: 16px;
-            box-shadow: 0 12px 32px rgba(0,0,0,.06);
+        .page-wrap{ width:100%; }
+
+        /* Toolbar */
+        .toolbar{
+            background: rgba(255,255,255,.92);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 12px;
+            display:flex;
+            flex-wrap:wrap;
+            gap:12px;
+            align-items:center;
+            justify-content: space-between;
+        }
+        .toolbar-left{
+            display:flex;
+            flex-wrap:wrap;
+            gap:12px;
+            align-items:center;
+        }
+        .control{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            padding: 10px 12px;
+            border: 1px solid rgba(15,81,50,.16);
+            border-radius: 999px;
             background:#fff;
         }
-
-        /* Table polishing */
-        .table thead th{
-            background: #ecf7f0;
-            white-space: nowrap;
-            font-weight: 700;
-            border-bottom: 1px solid #dbeae0;
+        .control .ico{
+            width: 36px; height: 36px;
+            border-radius: 999px;
+            display:flex; align-items:center; justify-content:center;
+            background: rgba(15,81,50,.08);
+            color: var(--green);
+            flex: 0 0 36px;
         }
-
-        .table td, .table th{
-            padding: .85rem .9rem;
-            vertical-align: middle;
-        }
-
-        .badge-soft{
-            background: rgba(25,135,84,.10);
-            color: #146c43;
-            border: 1px solid rgba(25,135,84,.20);
+        .control input, .control select{
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
             font-weight: 650;
         }
 
-        .pill{
-            border-radius: 999px;
-            border: 1px solid #dde7e1;
+        .control.sm{ padding: 8px 10px; }
+        .control.sm .ico{ width: 32px; height: 32px; flex: 0 0 32px; }
+        .control.sm input{ min-width: 160px; }
+        .control.sm select{ min-width: 170px; }
+
+        .toolbar-right{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            margin-left: auto;
+        }
+
+        .btn-green{
+            background: var(--green) !important;
+            border-color: var(--green) !important;
+            border-radius: 12px;
+            font-weight: 750;
+            padding: 10px 14px;
+            color: #fff !important;
+        }
+        .btn-outline-green{
+            border-color: var(--green) !important;
+            color: var(--green) !important;
+            border-radius: 12px;
+            font-weight: 750;
+            padding: 10px 14px;
+        }
+
+        /* Summary cards */
+        .summary-row{ margin-top: 14px; }
+        .stat{
             background: #fff;
-            padding: .45rem .9rem;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 10px 26px rgba(0,0,0,.05);
+            padding: 14px 16px;
+            height:100%;
+        }
+        .stat .label{ color:#6b7280; font-weight:700; font-size:.92rem; }
+        .stat .value{ font-size: 2.1rem; font-weight: 900; margin-top: 4px; }
+        .stat .icon{
+            width:44px;height:44px;border-radius:14px;
+            background: rgba(15,81,50,.08);
+            display:flex;align-items:center;justify-content:center;
+            color: var(--green);
+            font-size: 1.35rem;
         }
 
-        .table-wrap{
-            border: 1px solid #e9ecef;
+        /* Location panel */
+        .panel{
+            margin-top: 14px;
+            background:#fff;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            overflow:hidden;
+        }
+        .panel-head{
+            padding: 14px 16px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            border-bottom: 1px solid rgba(15,81,50,.10);
+            background: linear-gradient(0deg, rgba(15,81,50,.04), rgba(15,81,50,.04));
+        }
+        .panel-title{
+            display:flex; align-items:center; gap:10px;
+            font-weight: 900; font-size: 1.25rem;
+        }
+        .chip{
+            border-radius:999px;
+            padding: 6px 10px;
+            background: rgba(15,81,50,.08);
+            border: 1px solid rgba(15,81,50,.16);
+            color: var(--green);
+            font-weight: 800;
+            font-size: .9rem;
+            white-space: nowrap;
+        }
+
+        /* Table */
+        .table-wrap{ padding: 10px 12px 14px; }
+        .table{
+            margin-bottom:0;
             border-radius: 14px;
-            overflow: hidden;
+            overflow:hidden;
         }
+        .table thead th{
+            background: var(--soft);
+            font-weight: 900;
+            border-bottom: 1px solid rgba(15,81,50,.16);
+            white-space: nowrap;
+        }
+        .table td, .table th{ padding: .85rem .9rem; vertical-align: middle; }
+        .muted{ color:#6b7280; }
 
+        /* Location visibility */
         .loc-block{ display:none; }
         .loc-block.active{ display:block; }
     </style>
 
     <div class="page-wrap">
 
-        <!-- Header row -->
-        <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
-            <div>
-                <h1 class="fw-bold mb-1 pt-2">Weekly Reports</h1>
-                <div class="text-muted">Select a location to view its reports</div>
-            </div>
-
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge rounded-pill badge-soft">
-                    <i class="bi bi-calendar-week me-1"></i>
-                    <span th:text="${weekStart}">2026-02-16</span> → <span th:text="${weekEnd}">2026-02-22</span>
-                </span>
-
-                <select id="locationSelect" class="form-select pill" style="min-width: 220px;">
-                    <option value="Admin Block" selected>Admin Block</option>
-                    <option value="Main Campus">Main Campus</option>
-                    <option value="Hostel">Hostel</option>
-                    <option value="Campus Garden">Campus Garden</option>
-                </select>
-            </div>
+        <!-- Title -->
+        <div class="mb-3">
+            <h1 class="fw-bold mb-1 pt-2">Weekly Reports</h1>
+            <div class="text-muted">Select a location to view its reports</div>
         </div>
 
-        <!-- Summary cards -->
-        <div class="row g-3 mb-3">
-            <div class="col-md-4">
-                <div class="card-soft p-3 h-100">
-                    <div class="d-flex justify-content-between">
+        <!-- Toolbar -->
+        <div class="toolbar">
+
+            <!-- LEFT: Week + buttons -->
+            <div class="toolbar-left">
+
+                <form method="get" th:action="@{/view-reports}" class="d-flex gap-2 align-items-center m-0">
+                    <div class="control sm">
+                        <div class="ico"><i class="bi bi-calendar-week"></i></div>
+                        <input type="week" name="week" th:value="${selectedWeek}">
+                    </div>
+
+                    <button class="btn btn-green" type="submit" style="padding: 9px 14px;">View</button>
+                    <a class="btn btn-outline-green" th:href="@{/view-reports}" style="padding: 9px 14px;">This Week</a>
+                </form>
+
+            </div>
+
+            <!-- RIGHT: Location (moved to corner) -->
+            <div class="toolbar-right">
+                <div class="control sm">
+                    <div class="ico"><i class="bi bi-geo-alt"></i></div>
+                    <select id="locationSelect">
+                        <option th:each="loc : ${locations}"
+                                th:value="${loc.name}"
+                                th:text="${loc.name}">
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Summary -->
+        <div class="row g-3 summary-row">
+            <div class="col-lg-4 col-md-6">
+                <div class="stat">
+                    <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="subtext">Total Records (This Week)</div>
-                            <div class="fs-3 fw-bold" th:text="${#lists.size(reports)}">0</div>
+                            <div class="label">Total Records</div>
+                            <div class="value" th:text="${#lists.size(reports)}">0</div>
                         </div>
-                        <div class="fs-2 text-success"><i class="bi bi-clipboard-data"></i></div>
+                        <div class="icon"><i class="bi bi-clipboard-data"></i></div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="card-soft p-3 h-100">
-                    <div class="d-flex justify-content-between">
+            <div class="col-lg-4 col-md-6">
+                <div class="stat">
+                    <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="subtext">Locations</div>
-                            <div class="fs-3 fw-bold">4</div>
+                            <div class="label">Locations</div>
+                            <div class="value" th:text="${#lists.size(locations)}">4</div>
                         </div>
-                        <div class="fs-2 text-success"><i class="bi bi-geo-alt"></i></div>
+                        <div class="icon"><i class="bi bi-geo-alt"></i></div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="card-soft p-3 h-100">
-                    <div class="d-flex justify-content-between">
+            <!-- Admin only -->
+            <div class="col-lg-4 col-md-12" sec:authorize="hasRole('ADMIN')">
+                <div class="stat">
+                    <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="subtext">Quick Action</div>
-                            <a class="btn btn-success mt-2" href="/add-data">
+                            <div class="label">Quick Action</div>
+                            <a class="btn btn-green mt-2" href="/add-data">
                                 <i class="bi bi-plus-circle me-1"></i> Add Data
                             </a>
                         </div>
-                        <div class="fs-2 text-success"><i class="bi bi-lightning"></i></div>
+                        <div class="icon"><i class="bi bi-lightning"></i></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ======================= LOCATION TABLES ======================= -->
+        <!-- ======================= LOCATION PANELS ======================= -->
 
         <!-- Admin Block -->
-        <div class="card-soft p-3 loc-block" data-loc="Admin Block">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h5 class="mb-0 fw-bold"><i class="bi bi-building text-success me-1"></i> Admin Block</h5>
-                <span class="badge rounded-pill badge-soft">
+        <div class="panel loc-block" data-loc="Admin Block">
+            <div class="panel-head">
+                <div class="panel-title">
+                    <i class="bi bi-building" style="color:var(--green)"></i>
+                    Admin Block
+                </div>
+                <div class="chip">
                     Records:
                     <span th:text="${#lists.size(reports.?[location != null and location.name == 'Admin Block'])}">0</span>
-                </span>
+                </div>
             </div>
 
             <div class="table-wrap table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover">
                     <thead>
                     <tr>
                         <th style="width:140px;">Date</th>
@@ -150,32 +277,37 @@
                     </thead>
                     <tbody>
                     <tr th:if="${#lists.isEmpty(reports.?[location != null and location.name == 'Admin Block'])}">
-                        <td colspan="4" class="text-center text-muted py-4">No reports for Admin Block this week.</td>
+                        <td colspan="4" class="text-center muted py-4">No reports for Admin Block this week.</td>
                     </tr>
 
-                    <tr th:each="r : ${reports.?[location != null and location.name == 'Admin Block']}">
-                        <td th:text="${r.reportDate}">2026-02-17</td>
-                        <td th:text="${r.reportType != null ? r.reportType.name : '-'}">Electricity</td>
-                        <td th:text="${(r.reportValues != null and !#lists.isEmpty(r.reportValues) and r.reportValues[0].value != null) ? r.reportValues[0].value : '-'}">-</td>
-                        <td th:text="${(r.reportValues != null and !#lists.isEmpty(r.reportValues) and r.reportValues[0].unit != null) ? r.reportValues[0].unit : '-'}">-</td>
-                    </tr>
+                    <th:block th:each="r : ${reports.?[location != null and location.name == 'Admin Block']}">
+                        <tr th:each="v : ${r.reportValues}">
+                            <td th:text="${r.reportDate}">2026-02-17</td>
+                            <td th:text="${v.reportType != null ? v.reportType.name : '-'}">Type</td>
+                            <td th:text="${v.value == null ? '-' : (v.unit == 'Count' ? T(java.lang.Math).round(v.value) : #numbers.formatDecimal(v.value, 1, 2))}">-</td>
+                            <td th:text="${v.unit != null ? v.unit : '-'}">-</td>
+                        </tr>
+                    </th:block>
                     </tbody>
                 </table>
             </div>
         </div>
 
         <!-- Main Campus -->
-        <div class="card-soft p-3 loc-block mt-3" data-loc="Main Campus">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h5 class="mb-0 fw-bold"><i class="bi bi-geo-alt-fill text-success me-1"></i> Main Campus</h5>
-                <span class="badge rounded-pill badge-soft">
+        <div class="panel loc-block" data-loc="Main Campus">
+            <div class="panel-head">
+                <div class="panel-title">
+                    <i class="bi bi-geo-alt-fill" style="color:var(--green)"></i>
+                    Main Campus
+                </div>
+                <div class="chip">
                     Records:
                     <span th:text="${#lists.size(reports.?[location != null and location.name == 'Main Campus'])}">0</span>
-                </span>
+                </div>
             </div>
 
             <div class="table-wrap table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover">
                     <thead>
                     <tr>
                         <th style="width:140px;">Date</th>
@@ -186,32 +318,37 @@
                     </thead>
                     <tbody>
                     <tr th:if="${#lists.isEmpty(reports.?[location != null and location.name == 'Main Campus'])}">
-                        <td colspan="4" class="text-center text-muted py-4">No reports for Main Campus this week.</td>
+                        <td colspan="4" class="text-center muted py-4">No reports for Main Campus this week.</td>
                     </tr>
 
-                    <tr th:each="r : ${reports.?[location != null and location.name == 'Main Campus']}">
-                        <td th:text="${r.reportDate}">2026-02-17</td>
-                        <td th:text="${r.reportType != null ? r.reportType.name : '-'}">Water</td>
-                        <td th:text="${(r.reportValues != null and !#lists.isEmpty(r.reportValues) and r.reportValues[0].value != null) ? r.reportValues[0].value : '-'}">-</td>
-                        <td th:text="${(r.reportValues != null and !#lists.isEmpty(r.reportValues) and r.reportValues[0].unit != null) ? r.reportValues[0].unit : '-'}">-</td>
-                    </tr>
+                    <th:block th:each="r : ${reports.?[location != null and location.name == 'Main Campus']}">
+                        <tr th:each="v : ${r.reportValues}">
+                            <td th:text="${r.reportDate}"></td>
+                            <td th:text="${v.reportType != null ? v.reportType.name : '-'}"></td>
+                            <td th:text="${v.value == null ? '-' : (v.unit == 'Count' ? T(java.lang.Math).round(v.value) : #numbers.formatDecimal(v.value, 1, 2))}"></td>
+                            <td th:text="${v.unit != null ? v.unit : '-'}"></td>
+                        </tr>
+                    </th:block>
                     </tbody>
                 </table>
             </div>
         </div>
 
         <!-- Hostel -->
-        <div class="card-soft p-3 loc-block mt-3" data-loc="Hostel">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h5 class="mb-0 fw-bold"><i class="bi bi-house-door-fill text-success me-1"></i> Hostel</h5>
-                <span class="badge rounded-pill badge-soft">
+        <div class="panel loc-block" data-loc="Hostel">
+            <div class="panel-head">
+                <div class="panel-title">
+                    <i class="bi bi-house-door-fill" style="color:var(--green)"></i>
+                    Hostel
+                </div>
+                <div class="chip">
                     Records:
                     <span th:text="${#lists.size(reports.?[location != null and location.name == 'Hostel'])}">0</span>
-                </span>
+                </div>
             </div>
 
             <div class="table-wrap table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover">
                     <thead>
                     <tr>
                         <th style="width:140px;">Date</th>
@@ -222,32 +359,37 @@
                     </thead>
                     <tbody>
                     <tr th:if="${#lists.isEmpty(reports.?[location != null and location.name == 'Hostel'])}">
-                        <td colspan="4" class="text-center text-muted py-4">No reports for Hostel this week.</td>
+                        <td colspan="4" class="text-center muted py-4">No reports for Hostel this week.</td>
                     </tr>
 
-                    <tr th:each="r : ${reports.?[location != null and location.name == 'Hostel']}">
-                        <td th:text="${r.reportDate}">2026-02-17</td>
-                        <td th:text="${r.reportType != null ? r.reportType.name : '-'}">Waste</td>
-                        <td th:text="${(r.reportValues != null and !#lists.isEmpty(r.reportValues) and r.reportValues[0].value != null) ? r.reportValues[0].value : '-'}">-</td>
-                        <td th:text="${(r.reportValues != null and !#lists.isEmpty(r.reportValues) and r.reportValues[0].unit != null) ? r.reportValues[0].unit : '-'}">-</td>
-                    </tr>
+                    <th:block th:each="r : ${reports.?[location != null and location.name == 'Hostel']}">
+                        <tr th:each="v : ${r.reportValues}">
+                            <td th:text="${r.reportDate}"></td>
+                            <td th:text="${v.reportType != null ? v.reportType.name : '-'}"></td>
+                            <td th:text="${v.value == null ? '-' : (v.unit == 'Count' ? T(java.lang.Math).round(v.value) : #numbers.formatDecimal(v.value, 1, 2))}"></td>
+                            <td th:text="${v.unit != null ? v.unit : '-'}"></td>
+                        </tr>
+                    </th:block>
                     </tbody>
                 </table>
             </div>
         </div>
 
         <!-- Campus Garden -->
-        <div class="card-soft p-3 loc-block mt-3 mb-4" data-loc="Campus Garden">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h5 class="mb-0 fw-bold"><i class="bi bi-tree-fill text-success me-1"></i> Campus Garden</h5>
-                <span class="badge rounded-pill badge-soft">
+        <div class="panel loc-block" data-loc="Campus Garden">
+            <div class="panel-head">
+                <div class="panel-title">
+                    <i class="bi bi-tree-fill" style="color:var(--green)"></i>
+                    Campus Garden
+                </div>
+                <div class="chip">
                     Records:
                     <span th:text="${#lists.size(reports.?[location != null and location.name == 'Campus Garden'])}">0</span>
-                </span>
+                </div>
             </div>
 
             <div class="table-wrap table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover">
                     <thead>
                     <tr>
                         <th style="width:140px;">Date</th>
@@ -258,15 +400,17 @@
                     </thead>
                     <tbody>
                     <tr th:if="${#lists.isEmpty(reports.?[location != null and location.name == 'Campus Garden'])}">
-                        <td colspan="4" class="text-center text-muted py-4">No reports for Campus Garden this week.</td>
+                        <td colspan="4" class="text-center muted py-4">No reports for Campus Garden this week.</td>
                     </tr>
 
-                    <tr th:each="r : ${reports.?[location != null and location.name == 'Campus Garden']}">
-                        <td th:text="${r.reportDate}"></td>
-                        <td th:text="${r.reportType != null ? r.reportType.name : '-'}">Trees</td>
-                        <td th:text="${(r.reportValues != null and !#lists.isEmpty(r.reportValues) and r.reportValues[0].value != null) ? r.reportValues[0].value : '-'}">-</td>
-                        <td th:text="${(r.reportValues != null and !#lists.isEmpty(r.reportValues) and r.reportValues[0].unit != null) ? r.reportValues[0].unit : '-'}">-</td>
-                    </tr>
+                    <th:block th:each="r : ${reports.?[location != null and location.name == 'Campus Garden']}">
+                        <tr th:each="v : ${r.reportValues}">
+                            <td th:text="${r.reportDate}"></td>
+                            <td th:text="${v.reportType != null ? v.reportType.name : '-'}"></td>
+                            <td th:text="${v.value == null ? '-' : (v.unit == 'Count' ? T(java.lang.Math).round(v.value) : #numbers.formatDecimal(v.value, 1, 2))}"></td>
+                            <td th:text="${v.unit != null ? v.unit : '-'}"></td>
+                        </tr>
+                    </th:block>
                     </tbody>
                 </table>
             </div>
@@ -278,7 +422,7 @@
         const select = document.getElementById("locationSelect");
         const blocks = document.querySelectorAll(".loc-block");
 
-        function showLocation(loc){
+        function showLocation(loc) {
             blocks.forEach(b => {
                 b.classList.toggle("active", b.getAttribute("data-loc") === loc);
             });

@@ -31,10 +31,6 @@ public class Report {
     @Column(name = "report_date")
     private LocalDate reportDate;
 
-    @Setter
-    @Column(name = "notes")
-    private String notes;
-
     // report_values.report_id -> reports.id
     @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReportValue> reportValues = new ArrayList<>();
@@ -46,8 +42,6 @@ public class Report {
     public ReportType getReportType() { return reportType; }
 
     public LocalDate getReportDate() { return reportDate; }
-
-    public String getNotes() { return notes; }
 
     public List<ReportValue> getReportValues() { return reportValues; }
 }

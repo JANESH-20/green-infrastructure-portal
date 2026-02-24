@@ -3,8 +3,8 @@ package com.greenportal.monitoting.controller;
 import com.greenportal.monitoting.service.ReportService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 
@@ -17,17 +17,19 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/add-data")
-    public String addDataPage(Model model) {
+    public String addDataPage(org.springframework.ui.Model model) {
+
         model.addAttribute("pageTitle", "Add Data - Green Portal");
         model.addAttribute("activePage", "add");
         model.addAttribute("headerTitle", "Add Data");
         model.addAttribute("subTitle", "Quick admin entry");
-        return "add_data";   // ✅ must match templates/add_data.html
+
+        return "add_data";
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/saveReport")
     public String saveReport(@RequestParam String dataType,
                              @RequestParam String location,
@@ -35,15 +37,16 @@ public class ReportController {
                              @RequestParam Double value,
                              @RequestParam String unit,
                              @RequestParam(defaultValue = "false") boolean saveAndNew,
-                             Model model) {
+                             RedirectAttributes ra) {
 
         reportService.saveReport(dataType, location, LocalDate.parse(date), value, unit);
 
         if (saveAndNew) {
-            model.addAttribute("success", "Saved successfully. Add next entry.");
-            return "add-data";
+            ra.addFlashAttribute("success", "Saved successfully. Add next entry.");
+            return "redirect:/add-data";
         }
 
-        return "redirect:/reports/weekly";
+        ra.addFlashAttribute("success", "Saved successfully.");
+        return "redirect:/add-data";
     }
 }
