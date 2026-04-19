@@ -17,7 +17,7 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','EDITOR')")
     @GetMapping("/add-data")
     public String addDataPage(org.springframework.ui.Model model) {
 
@@ -29,7 +29,7 @@ public class ReportController {
         return "add_data";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','EDITOR')")
     @PostMapping("/saveReport")
     public String saveReport(@RequestParam String dataType,
                              @RequestParam String location,

@@ -114,7 +114,7 @@
 
         <!-- ✅ Only ADMIN sees Add Data -->
         <a class="navlink"
-           sec:authorize="hasRole('ADMIN')"
+           sec:authorize="hasAnyRole('ADMIN','EDITOR')"
            th:classappend="${activePage}=='add' ? ' active' : ''"
            th:href="@{/add-data}">
             <i class="bi bi-plus-circle"></i> Add Data

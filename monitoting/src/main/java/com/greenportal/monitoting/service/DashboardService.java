@@ -79,4 +79,65 @@ public class DashboardService {
         }
         return out;
     }
+
+    public String generateAlerts(LocalDate start, LocalDate end) {
+
+        double water = weekTotalByType("Water Usage", start, end);
+        double electricity = weekTotalByType("Electricity Consumption", start, end);
+        double waste = weekTotalByType("Waste Collected", start, end);
+
+        StringBuilder alerts = new StringBuilder();
+
+        if (water > 700) {
+            alerts.append("🚨 Water usage exceeded safe limit! ");
+        }
+
+        if (electricity > 1000) {
+            alerts.append("🚨 Electricity consumption is critically high! ");
+        }
+
+        if (waste > 500) {
+            alerts.append("⚠️ Waste levels are above threshold! ");
+        }
+
+        if (alerts.length() == 0) {
+            alerts.append("✅ No critical alerts. System is stable.");
+        }
+
+        return alerts.toString();
+    }
+
+    public String generateInsights(LocalDate start, LocalDate end) {
+
+        double water = weekTotalByType("Water Usage", start, end);
+        double electricity = weekTotalByType("Electricity Consumption", start, end);
+        double waste = weekTotalByType("Waste Collected", start, end);
+        double trees = weekTotalByType("Trees Planted", start, end);
+
+        StringBuilder insight = new StringBuilder();
+
+        if (water > 500) {
+            insight.append("⚠️ High water usage detected. ");
+        } else {
+            insight.append("✅ Water usage is under control. ");
+        }
+
+        if (electricity > 800) {
+            insight.append("⚠️ Electricity consumption is high. ");
+        } else {
+            insight.append("✅ Electricity usage is efficient. ");
+        }
+
+        if (waste > 300) {
+            insight.append("⚠️ Waste generation is high. ");
+        }
+
+        if (trees < 100) {
+            insight.append("🌱 Tree plantation is low.");
+        } else {
+            insight.append("🌳 Good tree plantation activity!");
+        }
+
+        return insight.toString();
+    }
 }

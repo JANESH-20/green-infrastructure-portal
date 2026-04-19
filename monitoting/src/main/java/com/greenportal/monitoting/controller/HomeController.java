@@ -21,50 +21,59 @@ public class HomeController {
         this.dashboardService = dashboardService;
     }
 
-    @GetMapping("/")
-    public String dashboard(@RequestParam(value = "week", required = false) String week,
+    // CHANGE THIS: Match the form action in your HTML
+    @GetMapping("/dashboard")
+    public String dashboard(@RequestParam(value = "selectedWeek", required = false) String week,
+                            @RequestParam(value = "metric", defaultValue = "water") String metric,
                             Model model) {
-
         LocalDate start;
+        try {
+            if (week == null || week.isBlank()) {
+                start = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            } else {
+                String[] parts = week.split("-W");
+                int year = Integer.parseInt(parts[0]);
+                int weekNum = Integer.parseInt(parts[1]);
 
-        // If week not provided => current week (Monday)
-        if (week == null || week.isBlank()) {
+                start = LocalDate.of(year, 1, 4)
+                        .with(WeekFields.ISO.weekOfWeekBasedYear(), weekNum)
+                        .with(WeekFields.ISO.dayOfWeek(), 1);
+            }
+        } catch (Exception e) {
             start = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        } else {
-            // week format: "2026-W09"
-            int year = Integer.parseInt(week.substring(0, 4));
-            int weekNumber = Integer.parseInt(week.substring(6));
-
-            // ISO week: Use Jan 4th as anchor, then set week and Monday
-            start = LocalDate.of(year, 1, 4)
-                    .with(WeekFields.ISO.weekOfWeekBasedYear(), weekNumber)
-                    .with(WeekFields.ISO.dayOfWeek(), 1); // Monday
         }
 
         LocalDate end = start.plusDays(6);
-
-        // For input type="week" -> expects YYYY-Www
-        String selectedWeek = start.format(DateTimeFormatter.ofPattern("YYYY-'W'ww"));
+        // Use lowercase 'w' for Thymeleaf compatibility with HTML5 input
+        String currentWeekFormatted = start.format(DateTimeFormatter.ofPattern("yyyy-'W'ww"));
 
         model.addAttribute("weekStart", start);
         model.addAttribute("weekEnd", end);
-        model.addAttribute("selectedWeek", selectedWeek);
+        model.addAttribute("selectedWeek", currentWeekFormatted);
+        model.addAttribute("currentMetric", metric);
 
+        // Data fetching
         model.addAttribute("waterWeek", dashboardService.weekTotalByType("Water Usage", start, end));
         model.addAttribute("electricityWeek", dashboardService.weekTotalByType("Electricity Consumption", start, end));
         model.addAttribute("wasteWeek", dashboardService.weekTotalByType("Waste Collected", start, end));
         model.addAttribute("totalTrees", dashboardService.totalTreesAllTime());
 
-        // Chart arrays (for selected week)
         model.addAttribute("locationLabels", dashboardService.locationLabels());
         model.addAttribute("waterByLocation", dashboardService.weekTotalsByLocation("Water Usage", start, end));
         model.addAttribute("electricityByLocation", dashboardService.weekTotalsByLocation("Electricity Consumption", start, end));
         model.addAttribute("wasteByLocation", dashboardService.weekTotalsByLocation("Waste Collected", start, end));
         model.addAttribute("treesByLocation", dashboardService.weekTotalsByLocation("Trees Planted", start, end));
 
-        // Recent rows (last 8)
         model.addAttribute("recentRows", dashboardService.recentRows(8));
+        model.addAttribute("insights", dashboardService.generateInsights(start, end));
+        model.addAttribute("alerts", dashboardService.generateAlerts(start, end));
 
         return "dashboard_admin";
+    }
+
+    // Keep this for the root URL
+    @GetMapping("/")
+    public String index() {
+        return "redirect:/dashboard";
     }
 }
